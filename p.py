@@ -1,9 +1,12 @@
-def creer_profil(nom, **details):
+def logger_fonction(func):
+    def wrapper(*args, **kwargs):
+        print(f"Appel de {func.__name__} avec {args} et {kwargs}")
+        return func(*args, **kwargs)
+    return wrapper
 
-    print(f"Profil de {nom}:")
-    for cle, valeur in details.items():
-        print(f"- {cle}: {valeur}")
+@logger_fonction
+def commander_pizza(taille, *garnitures, **options):
+    print(f"Pizza {taille} avec {garnitures}. Livraison : {options.get('livraison')}")
 
-creer_profil("Lmr", ville="Lubumbashi", job="Data Scientist", passion="Football")
-
+commander_pizza("Large", "Champignons", "Olives", livraison=True, paiement="Carte")
 
