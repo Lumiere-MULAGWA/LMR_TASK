@@ -33,3 +33,4 @@ def main(page: ft.Page):
     page.go(page.route)
 
 ft.app(target=main)
+#modification du code pour prendre une interface plus simple 
