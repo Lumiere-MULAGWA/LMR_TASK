@@ -1,9 +1,0 @@
-{
-  "name": "com.example.lmrtask",
-  "version": "1.0",
-  "title": "LmrTask",
-  "maintainer": "Ton Nom <email@example.com>",
-  "architecture": "all",
-  "framework": "ubuntu-sdk-16.04",
-  "description": "Application Python native Ubuntu Touch"
-}
