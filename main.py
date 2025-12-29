@@ -131,6 +131,27 @@ def main(page: ft.Page):
         on_change=change_color,
     )
 
+    def open_about(e):
+        page.dialog = ft.AlertDialog(
+            title=ft.Text("À propos"),
+            content=ft.Text("LmrTask\nVersion 1.0\n© 2025"),
+        )
+        page.dialog.open = True
+        page.update()
+
+    page.appbar = ft.AppBar(
+        title=ft.Text("LmrTask"),
+        center_title=True,
+        actions=[
+            ft.PopupMenuButton(
+                items=[
+                    ft.PopupMenuItem(text="À propos", on_click=open_about),
+                    ft.PopupMenuItem(text="Quitter", on_click=lambda _: page.window_close()),
+                ]
+            )
+        ],
+    )
+
     # -------------------------
     # UI
     # -------------------------
