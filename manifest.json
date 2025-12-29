@@ -1,0 +1,9 @@
+{
+  "name": "com.example.lmrtask",
+  "version": "1.0",
+  "title": "LmrTask",
+  "maintainer": "Lmr lumiere <lumierelmr31@gmail.com>",
+  "architecture": "all",
+  "framework": "ubuntu-sdk-16.04",
+  "description": "Application Python native Ubuntu Touch"
+}
