@@ -15,15 +15,22 @@ def main(page: ft.Page):
     # -------------------------
     page.title = "Ma To-Do List Moderne"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.window_width = 450
-    page.window_height = 650
+    page.window_width = 420
+    page.window_min_width = 320
+
     page.theme_mode = ft.ThemeMode.DARK
+    page.adaptive = True
+
 
     # Thème par défaut
     page.theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
 
     new_task = ft.TextField(hint_text="Qu'avez-vous à faire ?", expand=True)
-    tasks_view = ft.Column(scroll=ft.ScrollMode.AUTO)
+    tasks_view = ft.Column(
+    scroll=ft.ScrollMode.AUTO,
+    expand=True
+)
+
 
     # -------------------------
     # SAUVEGARDE
@@ -63,6 +70,7 @@ def main(page: ft.Page):
         )
 
         task_row = ft.Row(
+            wap=True,
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[
                 checkbox,
