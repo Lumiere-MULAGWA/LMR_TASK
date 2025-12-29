@@ -8,7 +8,7 @@
   "description": "premiere application de gestion de tache simple",
   "hooks": {
     "myapp": {
-      "apparmor": "myapp.json"
+      "apparmor": "lmr_task.json"
     }
   }
 }
