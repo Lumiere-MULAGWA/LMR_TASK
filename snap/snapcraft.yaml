@@ -1,0 +1,28 @@
+name: lmrtask
+base: core22
+version: '1.0'
+icon: icon.png
+summary: To-Do List moderne en Python
+description: |
+  Application To-Do List moderne développée avec Flet.
+
+grade: stable
+confinement: strict
+
+apps:
+  lmrtask:
+    command: bin/python3 $SNAP/main.py
+    plugs:
+      - network
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - opengl
+
+parts:
+  lmrtask:
+    plugin: python
+    source: .
+    python-packages:
+      - flet

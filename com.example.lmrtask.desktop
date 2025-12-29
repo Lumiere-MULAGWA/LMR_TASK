@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=LmrTask
-Exec=python3 app/main.py
-Icon=icon.png
-Type=Application
-Terminal=false
-X-Ubuntu-Touch=true

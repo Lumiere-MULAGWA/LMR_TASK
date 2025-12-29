@@ -2,7 +2,11 @@ import flet as ft
 import json
 import os
 
-TASKS_FILE = "tasks.json"
+TASKS_FILE = os.path.join(
+    os.environ.get("SNAP_USER_DATA", "."),
+    "tasks.json"
+)
+
 
 
 def main(page: ft.Page):
