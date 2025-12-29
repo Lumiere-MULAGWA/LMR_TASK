@@ -6,20 +6,24 @@ TASKS_FILE = "tasks.json"
 
 
 def main(page: ft.Page):
-    # Configuration de la fenêtre
+    # -------------------------
+    # CONFIG PAGE
+    # -------------------------
     page.title = "Ma To-Do List Moderne"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.theme_mode = ft.ThemeMode.DARK
     page.window_width = 450
-    page.window_height = 600
+    page.window_height = 650
+    page.theme_mode = ft.ThemeMode.DARK
+
+    # Thème par défaut
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
 
     new_task = ft.TextField(hint_text="Qu'avez-vous à faire ?", expand=True)
     tasks_view = ft.Column(scroll=ft.ScrollMode.AUTO)
 
     # -------------------------
-    # GESTION DU FICHIER
+    # SAUVEGARDE
     # -------------------------
-
     def save_tasks():
         tasks = []
         for row in tasks_view.controls:
@@ -34,17 +38,14 @@ def main(page: ft.Page):
     def load_tasks():
         if not os.path.exists(TASKS_FILE):
             return
-
         with open(TASKS_FILE, "r", encoding="utf-8") as f:
             tasks = json.load(f)
-
         for task in tasks:
             create_task(task["label"], task["checked"])
 
     # -------------------------
-    # FONCTIONS UI
+    # GESTION TACHES
     # -------------------------
-
     def delete_task(task_row):
         tasks_view.controls.remove(task_row)
         save_tasks()
@@ -54,13 +55,11 @@ def main(page: ft.Page):
         checkbox = ft.Checkbox(
             label=label,
             value=checked,
-            check_color="white",
             on_change=lambda _: save_tasks()
         )
 
         task_row = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
                 checkbox,
                 ft.IconButton(
@@ -73,31 +72,69 @@ def main(page: ft.Page):
         tasks_view.controls.append(task_row)
 
     def add_clicked(e):
-        if new_task.value.strip() == "":
-            return
+        if new_task.value.strip():
+            create_task(new_task.value)
+            new_task.value = ""
+            save_tasks()
+            page.update()
 
-        create_task(new_task.value)
-        new_task.value = ""
-        save_tasks()
+    # -------------------------
+    # THEME & COULEUR
+    # -------------------------
+    def change_theme(e):
+        page.theme_mode = (
+            ft.ThemeMode.DARK
+            if e.control.value == "Sombre"
+            else ft.ThemeMode.LIGHT
+        )
         page.update()
+
+    def change_color(e):
+        page.theme = ft.Theme(color_scheme_seed=e.control.value)
+        page.update()
+
+    theme_selector = ft.Dropdown(
+        label="Thème",
+        value="Sombre",
+        width=180,
+        options=[
+            ft.dropdown.Option("Sombre"),
+            ft.dropdown.Option("Clair"),
+        ],
+        on_change=change_theme,
+    )
+
+    color_selector = ft.Dropdown(
+        label="Couleur",
+        value=ft.Colors.BLUE,
+        width=180,
+        options=[
+            ft.dropdown.Option(ft.Colors.BLUE),
+            ft.dropdown.Option(ft.Colors.GREEN),
+            ft.dropdown.Option(ft.Colors.PURPLE),
+            ft.dropdown.Option(ft.Colors.ORANGE),
+            ft.dropdown.Option(ft.Colors.RED),
+            ft.dropdown.Option(ft.Colors.TEAL),
+        ],
+        on_change=change_color,
+    )
 
     # -------------------------
     # UI
     # -------------------------
-
     page.add(
-        ft.Text("Mes Tâches 2025", size=30, weight=ft.FontWeight.BOLD, color="blueaccent"),
+        ft.Text("Mes Tâches 2025", size=30, weight=ft.FontWeight.BOLD),
+        ft.Row([theme_selector, color_selector], alignment=ft.MainAxisAlignment.CENTER),
         ft.Row(
             controls=[
                 new_task,
                 ft.FloatingActionButton(icon=ft.Icons.ADD, on_click=add_clicked),
             ],
         ),
-        ft.Divider(height=20, thickness=1),
-        tasks_view
+        ft.Divider(height=20),
+        tasks_view,
     )
 
-    # Charger les tâches sauvegardées
     load_tasks()
     page.update()
 
