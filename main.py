@@ -1,45 +1,90 @@
 import flet as ft
+import json
+import os
+
+TASKS_FILE = "tasks.json"
+
 
 def main(page: ft.Page):
     # Configuration de la fenêtre
     page.title = "Ma To-Do List Moderne"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.theme_mode = ft.ThemeMode.DARK  # Mode sombre par défaut
+    page.theme_mode = ft.ThemeMode.DARK
     page.window_width = 450
     page.window_height = 600
 
-    # Champ de saisie pour les nouvelles tâches
     new_task = ft.TextField(hint_text="Qu'avez-vous à faire ?", expand=True)
+    tasks_view = ft.Column(scroll=ft.ScrollMode.AUTO)
 
-    # Fonction pour supprimer une tâche
+    # -------------------------
+    # GESTION DU FICHIER
+    # -------------------------
+
+    def save_tasks():
+        tasks = []
+        for row in tasks_view.controls:
+            checkbox = row.controls[0]
+            tasks.append({
+                "label": checkbox.label,
+                "checked": checkbox.value
+            })
+        with open(TASKS_FILE, "w", encoding="utf-8") as f:
+            json.dump(tasks, f, ensure_ascii=False, indent=4)
+
+    def load_tasks():
+        if not os.path.exists(TASKS_FILE):
+            return
+
+        with open(TASKS_FILE, "r", encoding="utf-8") as f:
+            tasks = json.load(f)
+
+        for task in tasks:
+            create_task(task["label"], task["checked"])
+
+    # -------------------------
+    # FONCTIONS UI
+    # -------------------------
+
     def delete_task(task_row):
         tasks_view.controls.remove(task_row)
+        save_tasks()
         page.update()
 
-    # Fonction pour ajouter une tâche
+    def create_task(label, checked=False):
+        checkbox = ft.Checkbox(
+            label=label,
+            value=checked,
+            check_color="white",
+            on_change=lambda _: save_tasks()
+        )
+
+        task_row = ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                checkbox,
+                ft.IconButton(
+                    icon=ft.Icons.DELETE_OUTLINE,
+                    icon_color="red700",
+                    on_click=lambda _: delete_task(task_row)
+                ),
+            ],
+        )
+        tasks_view.controls.append(task_row)
+
     def add_clicked(e):
-        if new_task.value != "":
-            # Création d'une ligne de tâche style "Compose"
-            task_row = ft.Row(
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=[
-                    ft.Checkbox(label=new_task.value, check_color="white"),
-                    ft.IconButton(
-                        icon=ft.Icons.DELETE_OUTLINE,
-                        icon_color="red700",
-                        on_click=lambda _: delete_task(task_row)
-                    ),
-                ],
-            )
-            tasks_view.controls.append(task_row)
-            new_task.value = ""
-            page.update()
+        if new_task.value.strip() == "":
+            return
 
-    # Conteneur pour la liste des tâches (Scrollable)
-    tasks_view = ft.Column()
+        create_task(new_task.value)
+        new_task.value = ""
+        save_tasks()
+        page.update()
 
-    # Mise en page principale
+    # -------------------------
+    # UI
+    # -------------------------
+
     page.add(
         ft.Text("Mes Tâches 2025", size=30, weight=ft.FontWeight.BOLD, color="blueaccent"),
         ft.Row(
@@ -52,6 +97,10 @@ def main(page: ft.Page):
         tasks_view
     )
 
-# Lancer l'application
+    # Charger les tâches sauvegardées
+    load_tasks()
+    page.update()
+
+
 if __name__ == "__main__":
     ft.app(target=main)
