@@ -167,4 +167,4 @@ cython_debug/
 .flet/
 *.snapcraft
 *.snap 
-
+tasks.json

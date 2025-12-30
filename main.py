@@ -8,7 +8,6 @@ TASKS_FILE = os.path.join(
 )
 
 
-
 def main(page: ft.Page):
     # -------------------------
     # CONFIG PAGE
@@ -31,7 +30,7 @@ def main(page: ft.Page):
     tasks_view = ft.Column(
     scroll=ft.ScrollMode.AUTO,
     expand=True
-)
+    )
 
 
     # -------------------------
@@ -72,7 +71,7 @@ def main(page: ft.Page):
         )
 
         task_row = ft.Row(
-            wap=True,
+            
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[
                 checkbox,
