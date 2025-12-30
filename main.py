@@ -8,18 +8,19 @@ TASKS_FILE = os.path.join(
 )
 
 
-
 def main(page: ft.Page):
     # -------------------------
     # CONFIG PAGE
     # -------------------------
-    page.title = "Ma To-Do List Moderne"
+    #page.title = "Ma To-Do List Moderne"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_width = 420
     page.window_min_width = 320
 
     page.theme_mode = ft.ThemeMode.DARK
     page.adaptive = True
+
+
 
 
     # Thème par défaut
@@ -29,7 +30,7 @@ def main(page: ft.Page):
     tasks_view = ft.Column(
     scroll=ft.ScrollMode.AUTO,
     expand=True
-)
+    )
 
 
     # -------------------------
@@ -70,7 +71,7 @@ def main(page: ft.Page):
         )
 
         task_row = ft.Row(
-            wap=True,
+            
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[
                 checkbox,
@@ -171,6 +172,6 @@ def main(page: ft.Page):
     load_tasks()
     page.update()
 
-
+#end fonction
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.app(target=main , assets_dir="assets")
