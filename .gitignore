@@ -165,4 +165,6 @@ cython_debug/
 .prime/
 .lxd/
 .flet/
+*.snapcraft
+*.snap 
 
