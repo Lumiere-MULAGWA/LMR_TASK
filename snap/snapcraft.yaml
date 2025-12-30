@@ -11,12 +11,12 @@ confinement: strict
 architectures:
   - build-on: amd64
   - build-on: arm64
-  
+
 apps:
   lmrtask:
-    command: bin/python3 -m lmrtask.main
+    command: bin/python3 -OO -m lmrtask.main
     extensions: [gnome]
-    desktop: gui/lmrtask.desktop
+    desktop: snap/lmrtask.desktop
     plugs:
       - network
       - desktop
@@ -31,3 +31,14 @@ parts:
     source: .
     python-packages:
       - flet
+    stage-packages:
+      - python3-tk
+    stage:
+      - -usr/lib/python*/dist-packages/**/tests
+      - -usr/lib/python*/dist-packages/**/test
+      - -usr/lib/python*/dist-packages/**/*.pyc
+      - -usr/lib/python*/dist-packages/**/*.pyo
+      - -usr/lib/python*/dist-packages/**/__pycache__
+      - -usr/share/doc
+      - -usr/share/man
+      - -usr/share/locale
