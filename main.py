@@ -13,13 +13,15 @@ def main(page: ft.Page):
     # -------------------------
     # CONFIG PAGE
     # -------------------------
-    page.title = "Ma To-Do List Moderne"
+    #page.title = "Ma To-Do List Moderne"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_width = 420
     page.window_min_width = 320
 
     page.theme_mode = ft.ThemeMode.DARK
     page.adaptive = True
+
+
 
 
     # Thème par défaut
@@ -173,4 +175,4 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.app(target=main , assets_dir="assets")

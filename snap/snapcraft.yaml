@@ -11,7 +11,8 @@ confinement: strict
 
 apps:
   lmrtask:
-    command: bin/python3 -m main
+    command: bin/python3 -m LMR_TASK.main
+    extensions: [gnome]
     plugs:
       - network
       - desktop
