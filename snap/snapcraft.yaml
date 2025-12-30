@@ -16,7 +16,7 @@ apps:
   lmrtask:
     command: bin/python3 -OO -m lmrtask.main
     extensions: [gnome]
-    desktop: snap/lmrtask.desktop
+    desktop: snap/gui/lmrtask.desktop
     plugs:
       - network
       - desktop
@@ -28,7 +28,7 @@ apps:
 parts:
   lmrtask:
     plugin: python
-    source: .
+    source: ..
     python-packages:
       - flet
     stage-packages:
