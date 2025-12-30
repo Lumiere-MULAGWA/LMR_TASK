@@ -173,6 +173,6 @@ def main(page: ft.Page):
     load_tasks()
     page.update()
 
-
+#end fonction
 if __name__ == "__main__":
     ft.app(target=main , assets_dir="assets")
