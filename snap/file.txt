@@ -1,0 +1,14 @@
+#netoyage 
+snap remove lmrtask || true
+snapcraft clean
+rm -rf parts stage prime
+
+#build
+snapcraft pack
+
+
+#intall local and run
+sudo snap install lmrtask_1.0_amd64.snap --dangerous
+snap run lmrtask
+
+

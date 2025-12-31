@@ -1,4 +1,5 @@
 name: lmrtask
+title: LMR Task
 base: core22
 version: '1.0'
 summary: To-Do List moderne en Python
@@ -21,7 +22,7 @@ architectures:
 
 apps:
   lmrtask:
-    command: $SNAP/bin/python3 -OO -m lmrtask.main
+    command: bin/python3 -OO -m main
     extensions: [gnome]
     desktop: snap/gui/lmrtask.desktop
     plugs:
