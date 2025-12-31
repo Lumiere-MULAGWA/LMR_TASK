@@ -5,6 +5,14 @@ summary: To-Do List moderne en Python
 description: |
   Application To-Do List moderne développée avec Flet.
 
+
+license: MIT
+contact: mailto:lumierelmr31@gmail.com
+source-code: https://github.com/Lumiere-MULAGWA/LMR_TASK
+issues: https://github.com/Lumiere-MULAGWA/LMR_TASK/issues
+website: https://github.com/Lumiere-MULAGWA
+donation: https://github.com/Lumiere-MULAGWA
+
 grade: stable
 confinement: strict
 architectures:
@@ -13,7 +21,7 @@ architectures:
 
 apps:
   lmrtask:
-    command: python3 $SNAP/main.py
+    command: $SNAP/bin/python3 -OO -m lmrtask.main
     extensions: [gnome]
     desktop: snap/gui/lmrtask.desktop
     plugs:
