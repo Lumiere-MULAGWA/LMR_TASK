@@ -1,7 +1,6 @@
 name: lmrtask
 base: core22
 version: '1.0'
-icon: icon.png
 summary: To-Do List moderne en Python
 description: |
   Application To-Do List moderne développée avec Flet.
@@ -14,7 +13,7 @@ architectures:
 
 apps:
   lmrtask:
-    command: bin/python3 -OO -m lmrtask.main
+    command: python3 $SNAP/main.py
     extensions: [gnome]
     desktop: snap/gui/lmrtask.desktop
     plugs:
@@ -26,7 +25,7 @@ apps:
       - opengl
 
 parts:
-  lmrtask:
+  app:
     plugin: python
     source: ..
     python-packages:
