@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=LMR Task
+Comment=Gestionnaire de tâches moderne
+Exec=lmrtask
+Icon=${SNAP}/meta/gui/icon.png
+Terminal=false
+Categories=Utility;Productivity;
+StartupNotify=true
