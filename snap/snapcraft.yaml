@@ -36,9 +36,22 @@ apps:
 parts:
   app:
     plugin: python
-    source: ..
+    source: .
+    
     python-packages:
       - flet
+    override-build: |
+      craftctl default
+
+      echo "Création du launcher lmrtask"
+
+      mkdir -p "$CRAFT_PART_INSTALL/bin"
+
+      cat << 'EOF' > "$CRAFT_PART_INSTALL/bin/lmrtask"
+      #!/bin/sh
+      exec python3 -m lmrtask.main
+      EOF
+      chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
       - python3-tk
     stage:
