@@ -102,9 +102,6 @@ def main(page: ft.Page):
         )
         page.update()
     
-    def add_color(args*):
-        pass
-
     def change_color(e):
         page.theme = ft.Theme(color_scheme_seed=e.control.value)
         page.update()
