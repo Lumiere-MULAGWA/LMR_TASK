@@ -54,6 +54,10 @@ parts:
       chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
       - python3-tk
+      - libmpv1          # <-- remplace libmpv2
+      - libglib2.0-0
+      - libgtk-3-0
+      - libgdk-pixbuf2.0-0
     stage:
       - -usr/lib/python*/dist-packages/**/tests
       - -usr/lib/python*/dist-packages/**/test
