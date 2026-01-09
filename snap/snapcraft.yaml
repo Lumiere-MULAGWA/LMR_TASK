@@ -39,7 +39,7 @@ parts:
     source: .
     
     python-packages:
-      - flet
+      - flet[all]==0.80.1
     override-build: |
       craftctl default
 
