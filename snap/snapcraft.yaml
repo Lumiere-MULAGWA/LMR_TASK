@@ -60,6 +60,9 @@ parts:
       chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
       - python3-tk
+      - tk8.6
+      - tcl8.6
+
 
     stage:
       - -usr/lib/python*/dist-packages/**/tests
