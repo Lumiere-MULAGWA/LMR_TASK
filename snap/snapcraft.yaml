@@ -27,10 +27,7 @@ apps:
     extensions: [gnome]
     desktop: snap/gui/lmrtask.desktop
     environment:
-      # force Tk à utiliser Wayland si dispo ; sinon X11 via extensions
-      # (Tu peux enlever cette ligne si tu veux laisser Tk choisir)
-      # TK_SILENCE_DEPRECATION: "1" # utile pour certains logs tk, optionnel
-      # DISPLAY géré par l’extension gnome
+
       PYTHONPATH: "$SNAP/lib/python3/dist-packages:$PYTHONPATH"
     plugs:
       - desktop
@@ -58,17 +55,12 @@ parts:
 
       export SNAP_USER_DATA="${SNAP_USER_DATA:-$HOME/snap/lmrtask/current}"
 
-      exec "$SNAP/usr/bin/python3" -m lmrtask.main
+      exec python3 -m lmrtask.main
       EOF
       chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
       - python3-tk
-      - libglib2.0-0
-      - libgtk-3-0
-      - libgdk-pixbuf2.0-0
-      - libx11-6
-      - libxrender1
-      - libxext6
+
     stage:
       - -usr/lib/python*/dist-packages/**/tests
       - -usr/lib/python*/dist-packages/**/test
