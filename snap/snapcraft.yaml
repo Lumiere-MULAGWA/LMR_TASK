@@ -39,11 +39,11 @@ apps:
 
 parts:
   app:
-    plugin: python
+    plugin: nil
     source: .
     python-packages:
-      - customtkinter==5.2.2        
-      - darkdetect==0.7.1           
+      - customtkinter==5.2.2
+      - darkdetect==0.7.1
 
     override-build: |
       craftctl default
@@ -59,9 +59,11 @@ parts:
       EOF
       chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
+      - python3
+      - python3-pip
       - python3-tk
-      - tk8.6
-      - tcl8.6
+      - tk
+      - tcl
 
 
     stage:
