@@ -1,11 +1,11 @@
+
 name: lmrtask
 title: LMR Task
 base: core22
 version: '1.0'
 summary: To-Do List moderne en Python
 description: |
-  Application To-Do List moderne développée avec Flet.
-
+  Application To-Do List moderne développée avec CustomTkinter (interface native).
 
 license: MIT
 contact: mailto:lumierelmr31@gmail.com
@@ -16,6 +16,7 @@ donation: https://github.com/Lumiere-MULAGWA
 
 grade: stable
 confinement: strict
+
 architectures:
   - build-on: amd64
   - build-on: arm64
@@ -25,39 +26,49 @@ apps:
     command: bin/lmrtask
     extensions: [gnome]
     desktop: snap/gui/lmrtask.desktop
+    environment:
+      # force Tk à utiliser Wayland si dispo ; sinon X11 via extensions
+      # (Tu peux enlever cette ligne si tu veux laisser Tk choisir)
+      # TK_SILENCE_DEPRECATION: "1" # utile pour certains logs tk, optionnel
+      # DISPLAY géré par l’extension gnome
+      PYTHONPATH: "$SNAP/lib/python3/dist-packages:$PYTHONPATH"
     plugs:
-      - network
       - desktop
       - desktop-legacy
       - wayland
       - x11
       - opengl
+      - home          #  autoriser l’accès lecture/écriture dans $HOME 
 
 parts:
   app:
     plugin: python
     source: .
-    
     python-packages:
-      - flet[all]==0.80.1
+      - customtkinter==5.2.2        
+      - darkdetect==0.7.1           
+
     override-build: |
       craftctl default
 
       echo "Création du launcher lmrtask"
-
       mkdir -p "$CRAFT_PART_INSTALL/bin"
-
       cat << 'EOF' > "$CRAFT_PART_INSTALL/bin/lmrtask"
       #!/bin/sh
-      exec python3 -m lmrtask.main
+
+      export SNAP_USER_DATA="${SNAP_USER_DATA:-$HOME/snap/lmrtask/current}"
+
+      exec "$SNAP/usr/bin/python3" -m lmrtask.main
       EOF
       chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
       - python3-tk
-      - libmpv1          # <-- remplace libmpv2
       - libglib2.0-0
       - libgtk-3-0
       - libgdk-pixbuf2.0-0
+      - libx11-6
+      - libxrender1
+      - libxext6
     stage:
       - -usr/lib/python*/dist-packages/**/tests
       - -usr/lib/python*/dist-packages/**/test
