@@ -1,11 +1,11 @@
+
 name: lmrtask
 title: LMR Task
 base: core22
 version: '1.0'
 summary: To-Do List moderne en Python
 description: |
-  Application To-Do List moderne développée avec Flet.
-
+  Application To-Do List moderne développée avec CustomTkinter (interface native).
 
 license: MIT
 contact: mailto:lumierelmr31@gmail.com
@@ -16,6 +16,7 @@ donation: https://github.com/Lumiere-MULAGWA
 
 grade: stable
 confinement: strict
+
 architectures:
   - build-on: amd64
   - build-on: arm64
@@ -25,22 +26,41 @@ apps:
     command: bin/lmrtask
     extensions: [gnome]
     desktop: snap/gui/lmrtask.desktop
+    environment:
+
+      PYTHONPATH: "$SNAP/lib/python3/dist-packages:$PYTHONPATH"
     plugs:
-      - network
       - desktop
       - desktop-legacy
       - wayland
       - x11
       - opengl
+      - home          #  autoriser l’accès lecture/écriture dans $HOME 
 
 parts:
   app:
     plugin: python
-    source: ..
+    source: .
     python-packages:
-      - flet
+      - customtkinter==5.2.2        
+      - darkdetect==0.7.1           
+
+    override-build: |
+      craftctl default
+
+      echo "Création du launcher lmrtask"
+      mkdir -p "$CRAFT_PART_INSTALL/bin"
+      cat << 'EOF' > "$CRAFT_PART_INSTALL/bin/lmrtask"
+      #!/bin/sh
+
+      export SNAP_USER_DATA="${SNAP_USER_DATA:-$HOME/snap/lmrtask/current}"
+
+      exec python3 -m lmrtask.main
+      EOF
+      chmod +x "$CRAFT_PART_INSTALL/bin/lmrtask"
     stage-packages:
       - python3-tk
+
     stage:
       - -usr/lib/python*/dist-packages/**/tests
       - -usr/lib/python*/dist-packages/**/test

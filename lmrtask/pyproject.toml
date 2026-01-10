@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lmrtask"
+version = "1.0.0"
+description = "To-Do List moderne développée avec Flet"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [
+  { name = "Lmr Lumiere", email = "lumierelmr31@gmail.com" }
+]
+
+dependencies = [
+  "flet>=0.28.3"
+]
+
+[tool.setuptools]
+packages = ["lmrtask"]
+
+[tool.setuptools.package-data]
+lmrtask = ["*.json"]
