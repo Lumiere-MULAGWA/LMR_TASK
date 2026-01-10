@@ -1,177 +1,278 @@
-import flet as ft
+
+# -*- coding: utf-8 -*-
+import customtkinter as ctk
+import tkinter as tk
+from tkinter import messagebox
 import json
 import os
 
+# -------------------------
+# CHEMIN DE SAUVEGARDE
+# -------------------------
 TASKS_FILE = os.path.join(
     os.environ.get("SNAP_USER_DATA", "."),
     "tasks.json"
 )
 
+# S'assure que le dossier existe
+os.makedirs(os.path.dirname(TASKS_FILE) or ".", exist_ok=True)
 
-def main(page: ft.Page):
+
+class LmrTaskApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+
+        # -------------------------
+        # CONFIG FENÊTRE
+        # -------------------------
+        self.title("LmrTask")
+        self.geometry("420x600")
+        self.minsize(320, 420)
+
+        # Thème par défaut
+        ctk.set_appearance_mode("dark")           # Sombre
+        ctk.set_default_color_theme("blue")       # Bleu
+
+        # Couleur d'accent locale (boutons / hover)
+        self.accent_colors = {
+            "Bleu": "#1f6aa5",
+            "Vert": "#2cc985",
+            "Violet": "#a55eea",
+            "Orange": "#ff8f1f",
+            "Rouge": "#e05a5a",
+            "Sarcelle": "#1abc9c",   # teal
+            "Bleu foncé": "#144870", # custom pour "dark-blue"
+        }
+        self.current_accent = self.accent_colors["Bleu"]
+
+        # -------------------------
+        # BARRE DE MENU
+        # -------------------------
+        menubar = tk.Menu(self)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Quitter", command=self.quit_app)
+        menubar.add_cascade(label="Fichier", menu=filemenu)
+
+        helpmenu = tk.Menu(menubar, tearoff=0)
+        helpmenu.add_command(label="À propos", command=self.open_about)
+        menubar.add_cascade(label="Aide", menu=helpmenu)
+        self.config(menu=menubar)
+
+        # -------------------------
+        # TITRE
+        # -------------------------
+        self.title_label = ctk.CTkLabel(
+            self,
+            text="Mes Tâches 2025",
+            font=ctk.CTkFont(size=24, weight="bold")
+        )
+        self.title_label.pack(pady=(12, 6))
+
+        # -------------------------
+        # SELECTEURS THÈME / COULEUR
+        # -------------------------
+        top_controls = ctk.CTkFrame(self)
+        top_controls.pack(fill="x", padx=12, pady=(0, 8))
+
+        # Thème (Sombre/Clair)
+        self.theme_selector = ctk.CTkOptionMenu(
+            top_controls,
+            values=["Sombre", "Clair"],
+            command=self.change_theme
+        )
+        self.theme_selector.set("Sombre")
+        self.theme_selector.pack(side="left", padx=6, pady=8)
+
+        # Couleur d'accent locale (n’affecte pas tout le thème)
+        self.color_selector = ctk.CTkOptionMenu(
+            top_controls,
+            values=["Bleu", "Vert", "Violet", "Orange", "Rouge", "Sarcelle", "Bleu foncé"],
+            command=self.change_color
+        )
+        self.color_selector.set("Bleu")
+        self.color_selector.pack(side="right", padx=6, pady=8)
+
+        # -------------------------
+        # SAISIE + BOUTON AJOUT
+        # -------------------------
+        entry_frame = ctk.CTkFrame(self)
+        entry_frame.pack(fill="x", padx=12, pady=(8, 8))
+
+        self.new_task_entry = ctk.CTkEntry(
+            entry_frame,
+            placeholder_text="Qu'avez-vous à faire ?"
+        )
+        self.new_task_entry.pack(side="left", fill="x", expand=True, padx=(6, 4), pady=6)
+
+        self.add_button = ctk.CTkButton(
+            entry_frame,
+            text="+",
+            width=44,
+            command=self.add_clicked,
+            fg_color=self.current_accent,
+            hover_color=self._hover_from(self.current_accent)
+        )
+        self.add_button.pack(side="left", padx=(4, 6), pady=6)
+
+        # Séparateur
+        
+        # Séparateur visuel (fine ligne)
+        sep = ctk.CTkFrame(self, height=1, fg_color="#3a3a3a")
+        sep.pack(fill="x", padx=12, pady=8)
+        # Évite que le frame se dilate verticalement
+        sep.pack_propagate(False)
+
+
+        # -------------------------
+        # ZONE DES TÂCHES (SCROLL)
+        # -------------------------
+        self.tasks_frame = ctk.CTkScrollableFrame(self)
+        self.tasks_frame.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+
+        # Charger les tâches existantes
+        self.load_tasks()
+
     # -------------------------
-    # CONFIG PAGE
+    # UTILITAIRES
     # -------------------------
-    #page.title = "Ma To-Do List Moderne"
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.window_width = 420
-    page.window_min_width = 320
-
-    page.theme_mode = ft.ThemeMode.DARK
-    page.adaptive = True
-
-
-
-
-    # Thème par défaut
-    page.theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
-
-    new_task = ft.TextField(hint_text="Qu'avez-vous à faire ?", expand=True)
-    tasks_view = ft.Column(
-    scroll=ft.ScrollMode.AUTO,
-    expand=True
-    )
-
+    @staticmethod
+    def _hover_from(color_hex: str) -> str:
+        """Crée une nuance un peu plus sombre pour le hover."""
+        try:
+            color_hex = color_hex.lstrip("#")
+            r = max(int(color_hex[0:2], 16) - 20, 0)
+            g = max(int(color_hex[2:4], 16) - 20, 0)
+            b = max(int(color_hex[4:6], 16) - 20, 0)
+            return f"#{r:02x}{g:02x}{b:02x}"
+        except Exception:
+            return color_hex
 
     # -------------------------
-    # SAUVEGARDE
+    # PERSISTENCE
     # -------------------------
-    def save_tasks():
+    def save_tasks(self):
         tasks = []
-        for row in tasks_view.controls:
-            checkbox = row.controls[0]
-            tasks.append({
-                "label": checkbox.label,
-                "checked": checkbox.value
-            })
+        # Chaque enfant de tasks_frame est un row_frame qui contient checkbox et bouton supprimer
+        for row in self.tasks_frame.winfo_children():
+            # On cherche le premier enfant de type CTkCheckBox
+            for child in row.winfo_children():
+                if isinstance(child, ctk.CTkCheckBox):
+                    label = child.cget("text")
+                    checked = bool(child.get())
+                    tasks.append({"label": label, "checked": checked})
+                    break
         with open(TASKS_FILE, "w", encoding="utf-8") as f:
             json.dump(tasks, f, ensure_ascii=False, indent=4)
 
-    def load_tasks():
+    def load_tasks(self):
         if not os.path.exists(TASKS_FILE):
             return
-        with open(TASKS_FILE, "r", encoding="utf-8") as f:
-            tasks = json.load(f)
-        for task in tasks:
-            create_task(task["label"], task["checked"])
+        try:
+            with open(TASKS_FILE, "r", encoding="utf-8") as f:
+                tasks = json.load(f)
+            for task in tasks:
+                self.create_task(task.get("label", ""), task.get("checked", False))
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Impossible de charger les tâches:\n{e}")
 
     # -------------------------
-    # GESTION TACHES
+    # GESTION TÂCHES
     # -------------------------
-    def delete_task(task_row):
-        tasks_view.controls.remove(task_row)
-        save_tasks()
-        page.update()
+    def delete_task(self, row_frame: ctk.CTkFrame):
+        # Supprimer la ligne UI + sauvegarder
+        row_frame.destroy()
+        self.save_tasks()
 
-    def create_task(label, checked=False):
-        checkbox = ft.Checkbox(
-            label=label,
-            value=checked,
-            on_change=lambda _: save_tasks()
+    def create_task(self, label: str, checked: bool = False):
+        if not label.strip():
+            return
+
+        row_frame = ctk.CTkFrame(self.tasks_frame)
+        row_frame.pack(fill="x", padx=6, pady=4)
+        row_frame.grid_columnconfigure(0, weight=1)
+        row_frame.grid_columnconfigure(1, weight=0)
+
+        # CheckBox
+        var = tk.BooleanVar(value=checked)
+        checkbox = ctk.CTkCheckBox(
+            row_frame,
+            text=label,
+            variable=var,
+            command=self.save_tasks,
+            # Couleur d'accent appliquée au check
+            fg_color=self.current_accent,
+            hover_color=self._hover_from(self.current_accent)
+        )
+        checkbox.grid(row=0, column=0, sticky="w", padx=(8, 4), pady=8)
+
+        # Bouton supprimer
+        delete_btn = ctk.CTkButton(
+            row_frame,
+            text="🗑",
+            width=36,
+            fg_color="#cf3c3c",
+            hover_color=self._hover_from("#cf3c3c"),
+            command=lambda rf=row_frame: self.delete_task(rf)
+        )
+        delete_btn.grid(row=0, column=1, sticky="e", padx=(4, 8), pady=8)
+
+    def add_clicked(self):
+        text = self.new_task_entry.get().strip()
+        if text:
+            self.create_task(text, checked=False)
+            self.new_task_entry.delete(0, tk.END)
+            self.save_tasks()
+
+    # -------------------------
+    # THÈME & COULEUR
+    # -------------------------
+    def change_theme(self, value: str):
+        # Sombre -> "dark" | Clair -> "light"
+        mode = "dark" if value == "Sombre" else "light"
+        ctk.set_appearance_mode(mode)
+
+    def change_color(self, value: str):
+        # Gestion accent local (boutons / checkboxes)
+        self.current_accent = self.accent_colors.get(value, self.current_accent)
+
+        # Optionnel: modifier le thème global pour 3 couleurs natives de CTk
+        if value == "Bleu":
+            ctk.set_default_color_theme("blue")
+        elif value == "Vert":
+            ctk.set_default_color_theme("green")
+        elif value == "Bleu foncé":
+            ctk.set_default_color_theme("dark-blue")
+
+        # Appliquer l'accent sur les widgets existants
+        # Bouton d'ajout
+        self.add_button.configure(
+            fg_color=self.current_accent,
+            hover_color=self._hover_from(self.current_accent)
         )
 
-        task_row = ft.Row(
-            
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            controls=[
-                checkbox,
-                ft.IconButton(
-                    icon=ft.Icons.DELETE_OUTLINE,
-                    icon_color="red700",
-                    on_click=lambda _: delete_task(task_row)
-                ),
-            ],
+        # Checkboxes existantes
+        for row in self.tasks_frame.winfo_children():
+            for child in row.winfo_children():
+                if isinstance(child, ctk.CTkCheckBox):
+                    child.configure(
+                        fg_color=self.current_accent,
+                        hover_color=self._hover_from(self.current_accent)
+                    )
+
+    # -------------------------
+    # DIALOGS & QUIT
+    # -------------------------
+    def open_about(self):
+        messagebox.showinfo(
+            "À propos",
+            "LmrTask\nVersion 1.0\n© 2025"
         )
-        tasks_view.controls.append(task_row)
 
-    def add_clicked(e):
-        if new_task.value.strip():
-            create_task(new_task.value)
-            new_task.value = ""
-            save_tasks()
-            page.update()
+    def quit_app(self):
+        # La sauvegarde est faite à chaque action ; on peut fermer directement
+        self.destroy()
 
-    # -------------------------
-    # THEME & COULEUR
-    # -------------------------
-    def change_theme(e):
-        page.theme_mode = (
-            ft.ThemeMode.DARK
-            if e.control.value == "Sombre"
-            else ft.ThemeMode.LIGHT
-        )
-        page.update()
-    
-    def change_color(e):
-        page.theme = ft.Theme(color_scheme_seed=e.control.value)
-        page.update()
 
-    theme_selector = ft.Dropdown(
-        label="Thème",
-        value="Sombre",
-        width=180,
-        options=[
-            ft.dropdown.Option("Sombre"),
-            ft.dropdown.Option("Clair"),
-        ],
-        on_change=change_theme,
-    )
-
-    color_selector = ft.Dropdown(
-        label="Couleur",
-        value=ft.Colors.BLUE,
-        width=180,
-        options=[
-            ft.dropdown.Option(ft.Colors.BLUE),
-            ft.dropdown.Option(ft.Colors.GREEN),
-            ft.dropdown.Option(ft.Colors.PURPLE),
-            ft.dropdown.Option(ft.Colors.ORANGE),
-            ft.dropdown.Option(ft.Colors.RED),
-            ft.dropdown.Option(ft.Colors.TEAL),
-        ],
-        on_change=change_color,
-    )
-
-    def open_about(e):
-        page.dialog = ft.AlertDialog(
-            title=ft.Text("À propos"),
-            content=ft.Text("LmrTask\nVersion 1.0\n© 2025"),
-        )
-        page.dialog.open = True
-        page.update()
-
-    page.appbar = ft.AppBar(
-        title=ft.Text("LmrTask"),
-        center_title=True,
-        actions=[
-            ft.PopupMenuButton(
-                items=[
-                    ft.PopupMenuItem(text="À propos", on_click=open_about),
-                    ft.PopupMenuItem(text="Quitter", on_click=lambda _: page.window_close()),
-                ]
-            )
-        ],
-    )
-
-    # -------------------------
-    # UI
-    # -------------------------
-    page.add(
-        ft.Text("Mes Tâches 2025", size=30, weight=ft.FontWeight.BOLD),
-        ft.Row([theme_selector, color_selector], alignment=ft.MainAxisAlignment.CENTER),
-        ft.Row(
-            controls=[
-                new_task,
-                ft.FloatingActionButton(icon=ft.Icons.ADD, on_click=add_clicked),
-            ],
-        ),
-        ft.Divider(height=20),
-        tasks_view,
-    )
-
-    load_tasks()
-    page.update()
-
-#end fonction
 if __name__ == "__main__":
-    ft.app(target=main , assets_dir="assets")
+    app = LmrTaskApp()
+    app.mainloop()
